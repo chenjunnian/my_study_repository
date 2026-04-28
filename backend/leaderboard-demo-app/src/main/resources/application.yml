@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: leaderboard-demo-app
+  data:
+    redis:
+      host: localhost
+      port: 6380
+      timeout: 3s
+
+logging:
+  level:
+    root: info

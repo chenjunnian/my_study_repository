@@ -1,0 +1,15 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: lua-transaction-demo-app
+  data:
+    redis:
+      host: localhost
+      port: 6380
+      timeout: 3s
+
+logging:
+  level:
+    root: info

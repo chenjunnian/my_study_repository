@@ -1,0 +1,91 @@
+<section class="page">
+  <header class="page__hero">
+    <p class="eyebrow">Redis Lua</p>
+    <h2>Lua 原子事务实验台</h2>
+    <p>这个示例用“钱包转账”讲 Lua：它把幂等校验、余额校验、扣减和入账放进一段脚本里，在 Redis 内部一次执行完成。</p>
+  </header>
+
+  <section class="grid grid--two">
+    <article class="card">
+      <h3>钱包初始化</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>用户 ID</label>
+          <input [(ngModel)]="seedForm.userId" />
+        </div>
+        <div class="field">
+          <label>用户名称</label>
+          <input [(ngModel)]="seedForm.userName" />
+        </div>
+        <div class="field">
+          <label>余额</label>
+          <input type="number" [(ngModel)]="seedForm.balance" />
+        </div>
+        <div class="actions">
+          <button class="button" (click)="seedBalance()">注入余额</button>
+          <button class="button button--ghost" (click)="loadBalances()">刷新钱包</button>
+          <button class="button button--ghost" (click)="resetWallet()">清空钱包</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h3>讲解提纲</h3>
+      <ul class="list">
+        <li>先强调 Redis Lua 的价值是“原子执行”，不是语法本身。</li>
+        <li>再说明为什么业务单号要进脚本一起校验，以支持幂等。</li>
+        <li>最后讲如果用普通 Java 代码拆成多次命令，会有并发窗口问题。</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card">
+    <h3>转账执行</h3>
+    <div class="form-grid">
+      <div class="field">
+        <label>转出用户</label>
+        <input [(ngModel)]="transferForm.fromUserId" />
+      </div>
+      <div class="field">
+        <label>转入用户</label>
+        <input [(ngModel)]="transferForm.toUserId" />
+      </div>
+      <div class="field">
+        <label>金额</label>
+        <input type="number" [(ngModel)]="transferForm.amount" />
+      </div>
+      <div class="field">
+        <label>业务单号</label>
+        <input [(ngModel)]="transferForm.bizNo" />
+      </div>
+      <div class="actions">
+        <button class="button" (click)="transfer()">执行 Lua 转账</button>
+      </div>
+    </div>
+
+    <div class="status" [class.status--warn]="statusIsWarn()">{{ status() }}</div>
+  </section>
+
+  <section class="card">
+    <h3>钱包列表</h3>
+    <table class="table" *ngIf="balances().length; else emptyWallets">
+      <thead>
+        <tr>
+          <th>用户</th>
+          <th>ID</th>
+          <th>余额</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let wallet of balances()">
+          <td>{{ wallet.userName }}</td>
+          <td class="mono">{{ wallet.userId }}</td>
+          <td>{{ wallet.balance }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #emptyWallets>
+      <p>当前还没有钱包数据。</p>
+    </ng-template>
+  </section>
+</section>

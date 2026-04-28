@@ -1,0 +1,99 @@
+<section class="page">
+  <header class="page__hero">
+    <p class="eyebrow">Redis Seckill</p>
+    <h2>秒杀实验台</h2>
+    <p>这里演示秒杀最核心的一步：Lua 脚本同时做活动存在校验、库存校验、一人一单校验和订单写入，避免并发下超卖。</p>
+  </header>
+
+  <section class="grid grid--two">
+    <article class="card">
+      <h3>活动预热</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>活动 ID</label>
+          <input [(ngModel)]="activityId" />
+        </div>
+        <div class="field">
+          <label>商品名称</label>
+          <input [(ngModel)]="prepareForm.productName" />
+        </div>
+        <div class="field">
+          <label>库存</label>
+          <input type="number" [(ngModel)]="prepareForm.stock" />
+        </div>
+        <div class="actions">
+          <button class="button" (click)="prepare()">预热活动</button>
+          <button class="button button--ghost" (click)="loadSnapshot()">刷新快照</button>
+          <button class="button button--ghost" (click)="clearActivity()">清空活动</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h3>讲解提纲</h3>
+      <ul class="list">
+        <li>先讲为什么秒杀最怕超卖和重复下单。</li>
+        <li>再讲 Lua 为什么比 Java 多次调用 Redis 更稳。</li>
+        <li>最后说明真正生产环境通常还会接消息队列和数据库落单。</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card">
+    <h3>模拟下单</h3>
+    <div class="form-grid">
+      <div class="field">
+        <label>用户 ID</label>
+        <input [(ngModel)]="orderForm.userId" />
+      </div>
+      <div class="field">
+        <label>用户名称</label>
+        <input [(ngModel)]="orderForm.userName" />
+      </div>
+      <div class="actions">
+        <button class="button" (click)="placeOrder()">执行秒杀</button>
+        <button class="button button--ghost" (click)="loadOrders()">刷新订单</button>
+      </div>
+    </div>
+
+    <div class="status" [class.status--warn]="statusIsWarn()">{{ status() }}</div>
+  </section>
+
+  <section class="grid grid--two">
+    <article class="card">
+      <h3>活动快照</h3>
+      <div *ngIf="snapshot(); else emptySnapshot">
+        <p><strong>商品：</strong>{{ snapshot()?.productName }}</p>
+        <p><strong>初始库存：</strong>{{ snapshot()?.initialStock }}</p>
+        <p><strong>剩余库存：</strong>{{ snapshot()?.remainingStock }}</p>
+        <p><strong>订单数：</strong>{{ snapshot()?.orderCount }}</p>
+      </div>
+      <ng-template #emptySnapshot>
+        <p>请先预热一个活动。</p>
+      </ng-template>
+    </article>
+
+    <article class="card">
+      <h3>订单列表</h3>
+      <table class="table" *ngIf="orders().length; else emptyOrders">
+        <thead>
+          <tr>
+            <th>订单号</th>
+            <th>用户</th>
+            <th>时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders()">
+            <td class="mono">{{ order.orderId }}</td>
+            <td>{{ order.userName }} / {{ order.userId }}</td>
+            <td>{{ order.createdAt }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #emptyOrders>
+        <p>当前还没有秒杀订单。</p>
+      </ng-template>
+    </article>
+  </section>
+</section>

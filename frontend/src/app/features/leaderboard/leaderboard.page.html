@@ -1,0 +1,100 @@
+<section class="page">
+  <header class="page__hero">
+    <p class="eyebrow">Redis ZSet</p>
+    <h2>排行榜实验台</h2>
+    <p>这个页面用于演示为什么排行榜通常优先选择 `ZSet`：写入简单、排序天然支持、查 TopN 和查个人名次都很直接。</p>
+  </header>
+
+  <section class="grid grid--two">
+    <article class="card">
+      <h3>操作面板</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>榜单编码</label>
+          <input [(ngModel)]="boardCode" />
+        </div>
+        <div class="field">
+          <label>用户 ID</label>
+          <input [(ngModel)]="scoreForm.userId" />
+        </div>
+        <div class="field">
+          <label>用户名称</label>
+          <input [(ngModel)]="scoreForm.userName" />
+        </div>
+        <div class="field">
+          <label>本次加分</label>
+          <input type="number" [(ngModel)]="scoreForm.scoreDelta" />
+        </div>
+        <div class="actions">
+          <button class="button" (click)="addScore()">录入分数</button>
+          <button class="button button--ghost" (click)="refreshTop()">加载 Top 榜单</button>
+          <button class="button button--ghost" (click)="resetBoard()">清空榜单</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h3>讲解提纲</h3>
+      <ul class="list">
+        <li>先说明分数存放在 `ZSet`，用户名存放在 `Hash`。</li>
+        <li>录分动作对应 `ZINCRBY`，名次查询对应 `ZREVRANK`。</li>
+        <li>如果要展示 TopN，直接按倒序遍历 `ZSet` 即可。</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card">
+    <div class="actions">
+      <div class="field">
+        <label>查询用户 ID</label>
+        <input [(ngModel)]="queryUserId" />
+      </div>
+      <div class="field">
+        <label>Top N</label>
+        <input type="number" [(ngModel)]="topLimit" />
+      </div>
+      <button class="button" (click)="lookupUser()">查询名次</button>
+    </div>
+
+    <div class="status" [class.status--warn]="statusIsWarn()">{{ status() }}</div>
+  </section>
+
+  <section class="grid grid--two">
+    <article class="card">
+      <h3>Top 榜单</h3>
+      <table class="table" *ngIf="entries().length; else emptyTop">
+        <thead>
+          <tr>
+            <th>名次</th>
+            <th>用户</th>
+            <th>ID</th>
+            <th>分数</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of entries()">
+            <td>{{ entry.rank }}</td>
+            <td>{{ entry.userName }}</td>
+            <td class="mono">{{ entry.userId }}</td>
+            <td>{{ entry.score }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #emptyTop>
+        <p>当前榜单还没有数据。</p>
+      </ng-template>
+    </article>
+
+    <article class="card">
+      <h3>个人名次</h3>
+      <div *ngIf="ranking(); else emptyRanking">
+        <p><strong>用户：</strong>{{ ranking()?.userName }}</p>
+        <p><strong>名次：</strong>{{ ranking()?.rank ?? '未上榜' }}</p>
+        <p><strong>分数：</strong>{{ ranking()?.score ?? 0 }}</p>
+      </div>
+      <ng-template #emptyRanking>
+        <p>先输入用户 ID 再查询。</p>
+      </ng-template>
+    </article>
+  </section>
+</section>

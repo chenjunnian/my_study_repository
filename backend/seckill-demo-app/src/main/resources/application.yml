@@ -1,0 +1,15 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: seckill-demo-app
+  data:
+    redis:
+      host: localhost
+      port: 6380
+      timeout: 3s
+
+logging:
+  level:
+    root: info

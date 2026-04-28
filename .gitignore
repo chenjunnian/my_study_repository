@@ -1,0 +1,15 @@
+# Backend build output
+backend/**/target/
+
+# Frontend build output
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+frontend/coverage/
+
+# IDE files
+.idea/
+.vscode/
+
+# Logs
+*.log
